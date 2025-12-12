@@ -55,62 +55,9 @@ def add_text_prompt(datapoint, text_query):
     GLOBAL_COUNTER += 1
     return GLOBAL_COUNTER - 1
 
-def add_visual_prompt(datapoint, boxes:List[List[float]], labels:List[bool], text_prompt="visual"):
-    """ Add a visual query to the datapoint.
-    The bboxes are expected in XYXY format (top left and bottom right corners)
-    For each bbox, we expect a label (true or false). The model tries to find boxes that ressemble the positive ones while avoiding the negative ones
-    We can also give a text_prompt as an additional hint. It's not mandatory, leave it to "visual" if you want the model to solely rely on the boxes.
-
-    Note that the model expects the prompt to be consistent. If the text reads "elephant" but the provided boxe points to a dog, the results will be undefined.
-    """
-
-    global GLOBAL_COUNTER
-    # in this function, we require that the image is already set.
-    # that's because we'll get its size to figure out what dimension to resize masks and boxes
-    # In practice you're free to set any size you want, just edit the rest of the function
-    assert len(datapoint.images) == 1, "please set the image first"
-    assert len(boxes) > 0, "please provide at least one box"
-    assert len(boxes) == len(labels), f"Expecting one label per box. Found {len(boxes)} boxes but {len(labels)} labels"
-    for b in boxes:
-        assert len(b) == 4, f"Boxes must have 4 coordinates, found {len(b)}"
-
-    labels = torch.tensor(labels, dtype=torch.bool).view(-1)
-    if not labels.any().item() and text_prompt=="visual":
-        print("Warning: you provided no positive box, nor any text prompt. The prompt is ambiguous and the results will be undefined")
-    w, h = datapoint.images[0].size
-    datapoint.find_queries.append(
-        FindQueryLoaded(
-            query_text=text_prompt,
-            image_id=0,
-            object_ids_output=[], # unused for inference
-            is_exhaustive=True, # unused for inference
-            query_processing_order=0,
-            input_bbox=torch.tensor(boxes, dtype=torch.float).view(-1,4),
-            input_bbox_label=labels,
-            inference_metadata=InferenceMetadata(
-                coco_image_id=GLOBAL_COUNTER,
-                original_image_id=GLOBAL_COUNTER,
-                original_category_id=1,
-                original_size=[w, h],
-                object_id=0,
-                frame_index=0,
-            )
-        )
-    )
-    GLOBAL_COUNTER += 1
-    return GLOBAL_COUNTER - 1
-
 from sam3 import build_sam3_image_model
 
-# bpe_path = f"{sam3_root}/assets/bpe_simple_vocab_16e6.txt.gz"
-# model = build_sam3_image_model(bpe_path=bpe_path)
-# model = build_sam3_image_model()
-# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
-
 model = build_sam3_image_model(checkpoint_path="sam3/sam3.pt")
-# if torch.cuda.device_count() > 1:
-#     print(f"Let's use {torch.cuda.device_count()} GPUs!")
-#     model = torch.nn.DataParallel(model)
 
 from sam3.train.transforms.basic_for_api import ComposeAPI, RandomResizeAPI, ToTensorAPI, NormalizeAPI
 
@@ -136,33 +83,13 @@ postprocessor = PostProcessImage(
 
 # Image 1, we'll use two text prompts
 
-img1 = Image.open(BytesIO(requests.get("http://images.cocodataset.org/val2017/000000077595.jpg").content))
+img1 = Image.open("/var/khkim/projects/SAM3/export_dataset/image/0b45b12e6b6d4fba881ff7d441d1b0dd.jpg")
 datapoint1 = create_empty_datapoint()
 set_image(datapoint1, img1)
-id1 = add_text_prompt(datapoint1, "cat")
-id2 = add_text_prompt(datapoint1, "laptop")
+id1 = add_text_prompt(datapoint1, "pothole")
+id2 = add_text_prompt(datapoint1, "manhole")
 
 datapoint1 = transform(datapoint1)
-
-# Image 2, one text prompt, some visual prompt
-img2 = Image.open(BytesIO(requests.get("http://images.cocodataset.org/val2017/000000136466.jpg").content))
-
-# img2 = Image.open(f"{sam3_root}/assets/images/test_image.jpg")
-datapoint2 = create_empty_datapoint()
-set_image(datapoint2, img2)
-id3 = add_text_prompt(datapoint2, "pot")
-# we trying to find the dials on the oven. Let's give a positive box
-id4 = add_visual_prompt(datapoint2, boxes=[[ 59, 144,  76, 163]], labels=[True])
-# Let's also get the oven start/stop button
-id5 = add_visual_prompt(datapoint2, boxes=[[ 59, 144,  76, 163],[ 87, 148, 104, 159]], labels=[True, True])
-# Next, let's try to find the pot handles. With the text prompt "handle" (vague on purpose), the model also finds the oven's handles
-# We could make the text query more precise (try it!) but for this example, we instead want to leverage a negative prompt
-# First, let's see what happens with just the text prompt
-id6 = add_text_prompt(datapoint2, "handle")
-# now the same but adding the negative prompt
-id7 = add_visual_prompt(datapoint2, boxes=[[ 40, 183, 318, 204]], labels=[False], text_prompt="handle")
-
-datapoint2 = transform(datapoint2)
 
 # Collate then move to cuda
 # batch = collate([datapoint1, datapoint2], dict_key="dummy")["dummy"]

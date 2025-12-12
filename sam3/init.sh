@@ -17,3 +17,6 @@ if [ -d "$TARGET" ]; then
 else
     echo "❌ 에러: 부모 폴더('../')에서 'tools' 디렉토리를 찾을 수 없습니다."
 fi
+
+ln -s ./blobs/3e600e765b0f1b4c52680aed9ad242c9a90f7ed1 config.json
+ln -s ./blobs/9999e2341ceef5e136daa386eecb55cb414446a00ac2b55eb2dfd2f7c3cf8c9e sam3.pt

@@ -34,10 +34,10 @@ def vis(
 
 # Load the model
 # /home/khkim/.cache/huggingface/hub/models--facebook--sam3/snapshots/3c879f39826c281e95690f02c7821c4de09afae7/sam3.pt
-model = build_sam3_image_model()
+model = build_sam3_image_model(checkpoint_path="sam3/sam3.pt")
 processor = Sam3Processor(model)
 # Load an image
-image = Image.open("/home/khkim/projects/SAM3/tests/export_dataset/image/0b45b12e6b6d4fba881ff7d441d1b0dd.jpg")
+image = Image.open("/home/khkim/projects/SAM3/export_dataset/image/0b45b12e6b6d4fba881ff7d441d1b0dd.jpg")
 width, height = image.size
 
 # labels = get_labels_from_file("/home/khkim/projects/SAM3/tests/export_dataset/label/0b45b12e6b6d4fba881ff7d441d1b0dd.txt")
