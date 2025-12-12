@@ -1,0 +1,11 @@
+vertical-crack
+horizontal-crack
+fatigue-crack
+pothole
+bad-tubular-marker
+speed-bump
+trash
+numberplate
+manhole
+bad-crosswalk-marking
+bad-lane-marking
