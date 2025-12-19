@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
-def draw_mask(image: Image.Image, mask, color: tuple, opacity=0.3):
+def draw_mask(image: Image.Image, mask, color: tuple, opacity=0.1):
     im_h, im_w = mask.shape
     print(f"im_h : {im_h}, im_w: {im_w}")
     print(f"mask : {mask}")
