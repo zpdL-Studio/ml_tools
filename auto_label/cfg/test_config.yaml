@@ -1,0 +1,50 @@
+label:
+  - class_id: 0
+    name: vertical-crack
+    color: "255,0,0"
+  - class_id: 1
+    name: horizontal-crack
+    color: "255,0,0"
+  - class_id: 2
+    name: fatigue-crack
+    color: "255,0,0"
+  - class_id: 3
+    name: pothole
+    color: "255,0,0"
+  - class_id: 4
+    name: bad-tubular-marker
+    color: "255,0,0"
+  - class_id: 5
+    name: speed-bump
+    color: "255,0,0"
+  - class_id: 6
+    name: trash
+    color: "255,0,0"
+  - class_id: 7
+    name: numberplate
+    color: "255,0,0"
+  - class_id: 8
+    name: manhole
+    color: "0,0,255"
+  - class_id: 9
+    name: bad-crosswalk-marking
+    color: "255,0,0"
+  - class_id: 10
+    name: bad-lane-marking
+    color: "255,0,0"
+
+sam3:
+  check_point_path: /home/khkim/projects/SAM3/ml_tools/sam3/sam3.pt
+  input_path: /home/khkim/projects/SAM3/export_dataset/image/0b45b12e6b6d4fba881ff7d441d1b0dd.jpg
+  output_dir_path: /home/khkim/projects/SAM3/export_dataset/auto_label_step_1_sam3
+  confidence_threshold: 0.3
+  text_prompts:
+    - class_id: 3
+      text_prompt: pothole
+    - class_id: 8
+      text_prompt: manhole
+  nms_class_ids:
+    - class_ids:
+        - 3
+        - 8
+      nms_threshold: 0.75
